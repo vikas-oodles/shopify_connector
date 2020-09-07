@@ -10,6 +10,7 @@
     'depends': ["base", "sale_management", "stock", "account", "mail", "sale", "purchase", 'mrp'],
     'demo': [],
     'data': [
+        'views/res_company.xml',
     ],
     'installable': True,
     'application': True,

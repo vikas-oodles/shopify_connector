@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree view of Doctor model -->
+
+
+
+
+    <menuitem id="company_root" name="Company" sequence="0" web_icon="shopify_connector.static/description/icon.png"/>
+    <menuitem id="shopify" name="Shopify" parent="company_root" action="" />
+
+
+</odoo>
