@@ -1,11 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Tree view of Doctor model -->
 
+    <record id="res_company_inherit_shopify_connector" model="ir.ui.view">
+        <field name="name">res.company.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[1]" position="after">
+                    <page string="Shopify Settings">
+                        <sheet>
+                            <group>
+                                <group>
+                                    <field name="shopify_api_key" />
+                                    <field name="shopify_secret_key" />
+                                </group>
+                                <group>
+                                    <field name="shopify_client_id" />
+                                    <field name="default_location_id" />
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="shopify_access_token" />
+                                    <field name="default_address_type" />
+                                </group>
+                            </group>
+                        </sheet>
+                    </page>
+            </xpath>
+        </field>
 
+    </record>
 
-
-    <menuitem id="company_root" name="Company" sequence="0" web_icon="shopify_connector.static/description/icon.png"/>
+    <menuitem id="company_root" name="Company" sequence="-1" web_icon="shopify_connector.static/description/icon.png"/>
     <menuitem id="shopify" name="Shopify" parent="company_root" action="" />
 
 
