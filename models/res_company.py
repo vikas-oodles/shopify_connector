@@ -16,7 +16,7 @@ class CompanyInherit(models.Model):
     _inherit = 'res.company'
 
     shopify_api_key = fields.Char(string='Shopify Api Key')
-    shopify_secret_key = fields.Char(string='Shopify Secret Key')
+    shopify_secret_key = fields.Char(string='Shopify Password')
     shopify_client_id = fields.Char(string='Shopify Client Id')
     shopify_access_token = fields.Char(string='Shopify Access Token')
     default_location_id = fields.Many2one(
