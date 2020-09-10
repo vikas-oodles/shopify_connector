@@ -23,8 +23,8 @@ class Shopify(object):
         self.uri = uri or self.default_uri
 
     def get_url(self, uri):
-        url = "https://"+ self.shopify_api_key + ":" + self.shopify_password + "@vikas-oodles.myshopify.com/admin/api/2020-07" + (
-                    uri or self.uri)
+        url = "https://" + self.shopify_api_key + ":" + self.shopify_password + "@vikas-oodles.myshopify.com/admin/api/2020-07" + (
+                uri or self.uri)
         return url
 
     def get_request(self, url: str, headers: dict, params: dict):
@@ -94,5 +94,36 @@ class Product(Shopify):
             return None
 
 
+class Customer(Shopify):
+    default_uri = '/customers.json'
 
+    def get_customer_list(self, params: dict=None):
+        response, status_code = self.request('GET', params=params)
+        return response.get('data')
+
+
+class SaleOrder(Shopify):
+    default_uri = '/orders.json'
+
+    def get_sale_orders_list(self, params: dict = None):
+        response, status_code = self.request('GET', params=params)
+        return response or []
+
+    def update_sale_order(self, order_id: int, data: dict):
+        uri = self.uri + "/{}.json".format(order_id)
+        response, status_code = self.request('PUT', uri=uri, data=data)
+
+        if status_code == 200:
+            return response or []
+        else:
+            _logger.error('Update_sale_order')
+            return None
+
+    def get_so_product(self, uri: str):
+        response, status_code = self.request('GET', uri=uri)
+        if status_code == 200:
+            return response or []
+        else:
+            _logger.error('get_so_product')
+            return None
 
