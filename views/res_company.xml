@@ -25,6 +25,16 @@
                                     <field name="default_address_type" />
                                 </group>
                             </group>
+                            <separator string="Sync"/>
+                            <group>
+                                <group>
+                                    <button type="object" name="sync_category_and_product"
+                                            string="1 - Sync Product"/>
+<!--                                    <button type="object" name="sync_contact_and_address"-->
+<!--                                            string="2 - Sync Contact"/>-->
+
+                                </group>
+                            </group>
                         </sheet>
                     </page>
             </xpath>

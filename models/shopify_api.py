@@ -76,7 +76,7 @@ class Product(Shopify):
 
     def get_products_list(self, params: dict = None):
         # url = self.get_url(self.default_uri)
-        response, status_code = self.request('GET', uri=self.default_uri)
+        response, status_code = self.request('GET', params=params)
         if status_code == 200:
             return response.get('data')
         else:

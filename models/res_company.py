@@ -35,3 +35,30 @@ class CompanyInherit(models.Model):
     default_sales_person = fields.Many2one('res.users', string='Salesperson',
                                            domain=lambda self: [
                                                ('groups_id', 'in', self.env.ref('sales_team.group_sale_salesman').id)])
+
+    @api.constrains('shopify_default_lead_time')
+    def constrain_default_lead_time(self):
+        for obj in self:
+            if obj.shopify_default_lead_time <= 0.0:
+                raise ValidationError("Default Lead Time needs to be greater than 0.0")
+
+    def sync_shopify(self):
+        company = self.env.company
+        company.sync_category_and_product()
+        company.sync_contact_and_address()
+        company.create_sale_order()
+
+    def get_api_data(self):
+        return [
+            self.shopify_api_key,
+            self.shopify_secret_key,
+        ]
+
+    def sync_category_and_product(self):
+        self.create_product()
+
+    # def sync_contact_and_address(self):
+    #     self.create_partner()
+    #     self.create_address()
+
+

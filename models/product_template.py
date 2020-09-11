@@ -22,7 +22,7 @@ class ProductTemplate(models.Model):
     sync_with_shopify = fields.Boolean(string='Enable Shopify Sync', default=True)
 
     @api.model
-    def create(self,vals):
+    def create(self, vals):
         obj = super(ProductTemplate, self).create(vals)
         if obj.shopify_product_id == 0 and obj.sync_with_shopify:
             self.create_shopify_product(obj)
@@ -80,8 +80,39 @@ class ProductResCompany(models.Model):
         if product.get('inventory_tracking') != 'none':
             product_type = 'product'
             initialize_inventory = True
+        data = {'product_type': product_type, 'shopify_product_id': product.get('id')}
+        return data, initialize_inventory
 
+    def create_product(self):
+        product_obj = self.get_product_instance()
+        print("product: ", product_obj)
+        if not product_obj:
+            return
+        product_list = product_obj.get_products_list()
+        print(type(product_list))
+        for product in product_list:
+            if not self.check_existing_product(product.get('id')):
+                mapping = get_basic_shopify_product_mapping()
+                product_dict = {}
 
+                for k, v in mapping.items():
+                    if k != 'inventory_quantity':
+                        product_dict[v] = product.get(k)
 
+                additional_data, initialize_inventory = self.get_product_additional_data(product)
+                product_dict.update(additional_data)
+                obj = self.env['product.template'].create(product_dict)
+        del product_obj
 
+    def get_product_instance(self):
+        api_data = self.get_api_data()
+        print("Api_data: ",api_data)
+        product = Product(*api_data)
+        print("Product: ",product)
+        return product
 
+    def check_existing_product(self, product_id: int):
+        products = self.env['product.template'].search_count([('shopify_product_id', '=', product_id)])
+        if products > 0:
+            return True
+        return False
