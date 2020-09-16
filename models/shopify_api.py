@@ -54,6 +54,7 @@ class Shopify(object):
 
     def request(self, method: str, uri: str = None, data: dict = None, params: dict = None):
         url = self.get_url(uri)
+        print(url)
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -72,13 +73,13 @@ class Shopify(object):
 
 
 class Product(Shopify):
-    default_uri = '/products.json'
+    default_uri = '/products'
 
     def get_products_list(self, params: dict = None):
         # url = self.get_url(self.default_uri)
         response, status_code = self.request('GET', params=params)
         if status_code == 200:
-            return response.get('data')
+            return response.get('products')
         else:
             _logger.error('get_products_list')
             return None
@@ -93,11 +94,29 @@ class Product(Shopify):
             _logger.error('create_product')
             return None
 
+    def update_product(self, product_id: int, data: dict, fields: tuple = None):
+        uri = self.uri + "/products/{}".format(product_id)
+        response, status_code = self.request('PUT', uri=uri,
+                                             data=data, params={'include_fields': fields})
+        if status_code == 200:
+            return response.get('data')
+        else:
+            _logger.error('update_product', status_code, response.get('title'), data)
+            return None
+
 
 class Customer(Shopify):
-    default_uri = '/customers.json'
+    default_uri = '/customers'
 
     def get_customer_list(self, params: dict=None):
+        response, status_code = self.request('GET', params=params)
+        return response.get('data')
+
+
+class Address(Shopify):
+    default_uri = '/customers/addresses'
+
+    def get_address_list(self, params: dict = None):
         response, status_code = self.request('GET', params=params)
         return response.get('data')
 

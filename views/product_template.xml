@@ -6,7 +6,7 @@
             <field name="priority" eval="1"/>
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//div[@name='options']" position="inside">
+                <xpath expr="//div[@name='options']" position="after">
                     <div>
                         <field name="sync_with_shopify"/>
                         <label for="sync_with_shopify"/>
@@ -14,18 +14,13 @@
                 </xpath>
 
                 <field name="categ_id" position="after">
-
                     <field name="shopify_product_id" readonly="1"/>
                 </field>
-                <field name="default_code" position="attributes">
-                    <attribute name="attrs">{'required':[('sync_with_shopify','=',True)]}</attribute>
-                </field>
+
                 <field name="description_sale" position="attributes">
                     <attribute name="attrs">{'required':[('sync_with_shopify','=',True)]}</attribute>
                 </field>
-                <field name="weight" position="attributes">
-                    <attribute name="attrs">{'required':[('sync_with_shopify','=',True)]}</attribute>
-                </field>
+
             </field>
 
         </record>

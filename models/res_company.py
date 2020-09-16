@@ -49,6 +49,8 @@ class CompanyInherit(models.Model):
         company.create_sale_order()
 
     def get_api_data(self):
+        print(self.shopify_api_key)
+        print(self.shopify_secret_key)
         return [
             self.shopify_api_key,
             self.shopify_secret_key,

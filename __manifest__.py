@@ -11,6 +11,7 @@
     'demo': [],
     'data': [
         'views/res_company.xml',
+        'views/product_template.xml',
     ],
     'installable': True,
     'application': True,

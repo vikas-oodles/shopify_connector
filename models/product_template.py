@@ -5,11 +5,10 @@ from .shopify_api import Product
 def get_basic_shopify_product_mapping():
     mapping = {
         'title': 'name',
-        'description': 'description_sale',
-        'price': 'standard_price',
-        'sku': 'default_code',
-        'weight': 'weight',
-        'inventory_quantity': 'qty_available',
+        'body_html': 'description_sale',
+        'price': 'list_price',
+        'sku': 'qty_available',
+
 
     }
     return mapping
@@ -18,7 +17,7 @@ def get_basic_shopify_product_mapping():
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    shopify_product_id = fields.Integer(default=0)
+    shopify_product_id = fields.Char(default='')
     sync_with_shopify = fields.Boolean(string='Enable Shopify Sync', default=True)
 
     @api.model
@@ -40,6 +39,7 @@ class ProductTemplate(models.Model):
         if not obj:
             return
         data = self.get_product_data(product_obj)
+        print(data)
         obj.update_product(product_obj.shopify_product_id, data)
 
     def create_shopify_product(self, product_obj):
@@ -62,10 +62,10 @@ class ProductTemplate(models.Model):
         if product_obj.type != 'product':
             inventory_tracking = 'none'
         for k, v in mapping.items():
-            if k == 'inventory_quantity':
-                if inventory_tracking == 'product' and self.env.company.sync_stock_odoo_shopify:
-                    data[k] = int(product_obj.qty_available)
-                continue
+            # if k == 'variants':
+            #     if inventory_tracking == 'product' and self.env.company.sync_stock_odoo_shopify:
+            #         data[k]['sku'] = int(product_obj.qty_available)
+            #     continue
             data[k] = eval('product_obj.{}'.format(v))
         return data
 
@@ -80,7 +80,7 @@ class ProductResCompany(models.Model):
         if product.get('inventory_tracking') != 'none':
             product_type = 'product'
             initialize_inventory = True
-        data = {'product_type': product_type, 'shopify_product_id': product.get('id')}
+        data = {'shopify_product_id': product.get('id')}
         return data, initialize_inventory
 
     def create_product(self):
@@ -89,7 +89,7 @@ class ProductResCompany(models.Model):
         if not product_obj:
             return
         product_list = product_obj.get_products_list()
-        print(type(product_list))
+        print(product_list)
         for product in product_list:
             if not self.check_existing_product(product.get('id')):
                 mapping = get_basic_shopify_product_mapping()
@@ -97,18 +97,43 @@ class ProductResCompany(models.Model):
 
                 for k, v in mapping.items():
                     if k != 'inventory_quantity':
-                        product_dict[v] = product.get(k)
+                        # if product.get(k) == 'variants':
+                        #     print("product.get(k): ", product.get(k))
+                        #     for a, b in product.get(k):
+                        #         product_dict[v] = product.get(k)[v]
+
+                        # if k == 'variants':
+                        #     print("mapping[k]:", mapping[k])
+                        #     for a, b in mapping[k].items():
+                        #         # 'sku': 'pricelist_item_count'
+                        #         print("product_dict[k][b]: ", product_dict[k][b])
+                        #         print("product.get(k)[0].get(a): ", product.get(k)[0].get(a))
+                        #         product_dict[k][b] = product.get(k)[0].get(a)
+                        if k == 'price':
+                            print(product.get('variants')[0])
+                            price = product.get('variants')[0]['price']
+                            product_dict[v] = price
+                        elif k == 'sku':
+                            sku = product.get('variants')[0]['sku']
+                            product_dict[v] = float(sku)
+                        else:
+                            product_dict[v] = product.get(k)
+                        # product_dict[v] = product.get(k)
+
+                        print(product_dict)  # only to check
+                        print(product)  # only to check
 
                 additional_data, initialize_inventory = self.get_product_additional_data(product)
                 product_dict.update(additional_data)
+                print(product_dict)  # only to check
                 obj = self.env['product.template'].create(product_dict)
         del product_obj
 
     def get_product_instance(self):
         api_data = self.get_api_data()
-        print("Api_data: ",api_data)
+        print("Api_data: ", api_data)
         product = Product(*api_data)
-        print("Product: ",product)
+        print("Product: ", product)
         return product
 
     def check_existing_product(self, product_id: int):
