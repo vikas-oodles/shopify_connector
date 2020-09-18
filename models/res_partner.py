@@ -25,9 +25,11 @@ class CustomerResCompany(models.Model):
 
     def create_partner(self):
         customer_obj = self.get_customer_or_address_instance()
+        print("Customer_obj: ",customer_obj)
         if not customer_obj:
             return
         customer_list = customer_obj.get_customer_list()
+        print("customer_list: ", customer_list)
         for customer in customer_list:
             mapping = get_basic_shopify_customer_mapping()
             customer_dict = {}
@@ -103,9 +105,10 @@ class CustomerResCompany(models.Model):
 
     def get_customer_or_address_instance(self, address=False):
         api_data = self.get_api_data()
-        client_secret = self.shopify_client_id
+        # client_secret = self.shopify_client_id
         if address:
-            address_obj = Address(*api_data, client_secret=client_secret)
+            address_obj = Address(*api_data)
             return address_obj
-        customer = Customer(*api_data, client_secret=client_secret)
+        customer = Customer(*api_data)
+        print("customer: ",customer)
         return customer

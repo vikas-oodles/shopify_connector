@@ -59,8 +59,8 @@ class CompanyInherit(models.Model):
     def sync_category_and_product(self):
         self.create_product()
 
-    # def sync_contact_and_address(self):
-    #     self.create_partner()
-    #     self.create_address()
+    def sync_contact_and_address(self):
+        self.create_partner()
+        # self.create_address()
 
 

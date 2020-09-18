@@ -30,6 +30,7 @@ class Shopify(object):
     def get_request(self, url: str, headers: dict, params: dict):
         try:
             response = request("GET", url, headers=headers, params=params)
+            print("response: ",response)
             return json.loads(response.content), response.status_code
         except HTTPError as e:
             _logger.error(e)
@@ -117,7 +118,8 @@ class Customer(Shopify):
 
     def get_customer_list(self, params: dict = None):
         response, status_code = self.request('GET', params=params)
-        return response.get('data')
+        print(response)
+        return response.get('customers')
 
 
 class Address(Shopify):
