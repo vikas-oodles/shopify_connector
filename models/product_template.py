@@ -8,8 +8,9 @@ def get_basic_shopify_product_mapping():
         'body_html': 'description_sale',
         'price': 'list_price',
         'sku': 'qty_available',
-
-
+        'vendor': 'variant_seller_ids',
+        'product_type': 'type',
+        'published': 'active',
     }
     return mapping
 
@@ -23,14 +24,17 @@ class ProductTemplate(models.Model):
     @api.model
     def create(self, vals):
         obj = super(ProductTemplate, self).create(vals)
-        if obj.shopify_product_id == 0 and obj.sync_with_shopify:
+        print("obj.shopify_product_id: ", obj.shopify_product_id)
+        if obj.shopify_product_id == '' and obj.sync_with_shopify:
             self.create_shopify_product(obj)
+        print(obj)
         return obj
 
     def write(self, vals):
         res = super(ProductTemplate, self).write(vals)
         for obj in self:
             if obj.sync_with_shopify:
+                # changed update_shopify_product to create_shopify_product
                 self.update_shopify_product(obj)
         return res
 
@@ -43,29 +47,39 @@ class ProductTemplate(models.Model):
         obj.update_product(product_obj.shopify_product_id, data)
 
     def create_shopify_product(self, product_obj):
-        if not self.env.company.auto_create_product:
-            return
-        obj = self.env.company.get_product_instance()
-        if not obj:
-            return
-        data = self.get_product_data(product_obj)
-        res = obj.create_product(data)
-        if res:
-            product_obj.update({
-                'shopify_product_id': res.get('id')
-            })
+        try:
+            obj = self.env.company.get_product_instance()
+            if not obj:
+                return
+            data = self.get_product_data(product_obj)
+            res = obj.create_product(data)
+            print("res: ", res)
+            if res:
+                product_obj.update({
+                    'shopify_product_id': res.get('id')
+                })
+        except:
+            print("Error here")
 
     def get_product_data(self, product_obj):
         mapping = get_basic_shopify_product_mapping()
         data = {}
+        inner_data = {}
         inventory_tracking = 'product'
         if product_obj.type != 'product':
             inventory_tracking = 'none'
         for k, v in mapping.items():
-            # if k == 'variants':
-            #     if inventory_tracking == 'product' and self.env.company.sync_stock_odoo_shopify:
-            #         data[k]['sku'] = int(product_obj.qty_available)
-            #     continue
+            if k == 'price':
+                inner_data[k] = eval('product_obj.{}'.format(v))
+                data['variants'] = inner_data
+                continue
+            if k == 'sku':
+                inner_data[k] = eval('product_obj.{}'.format(v))
+                data['variants'] = inner_data
+                continue
+            if k == 'vendor':
+                data[k] = 'vikas_connector'
+                continue
             data[k] = eval('product_obj.{}'.format(v))
         return data
 
@@ -110,14 +124,22 @@ class ProductResCompany(models.Model):
                         #         print("product.get(k)[0].get(a): ", product.get(k)[0].get(a))
                         #         product_dict[k][b] = product.get(k)[0].get(a)
                         if k == 'price':
-                            print(product.get('variants')[0])
-                            price = product.get('variants')[0]['price']
-                            product_dict[v] = price
+                            continue
                         elif k == 'sku':
-                            sku = product.get('variants')[0]['sku']
-                            product_dict[v] = float(sku)
+                            continue
+                        elif k == 'vendor':
+                            continue
+                        elif k == 'product_type':
+                            continue
+                        elif k == 'published':
+                            continue
                         else:
                             product_dict[v] = product.get(k)
+                        # elif k == 'sku':
+                        #     sku = product.get('variants')[0]['sku']
+                        #     product_dict[v] = sku
+                        # else:
+                        #     product_dict[v] = product.get(k)
                         # product_dict[v] = product.get(k)
 
                         print(product_dict)  # only to check

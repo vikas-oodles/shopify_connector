@@ -37,7 +37,9 @@ class Shopify(object):
 
     def post_request(self, url: str, headers: dict, data: dict):
         try:
-            response = request('POST', url, data=json.dumps(data), headers=headers)
+            mydict = {'product': data}
+            print(mydict)
+            response = request('POST', url, data=json.dumps(mydict), headers=headers)
             return json.loads(response.content), response.status_code
         except HTTPError as e:
             _logger.error(e)
@@ -54,7 +56,8 @@ class Shopify(object):
 
     def request(self, method: str, uri: str = None, data: dict = None, params: dict = None):
         url = self.get_url(uri)
-        print(url)
+        print("URl: ", url)
+        print("Data: ", data)
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -88,18 +91,22 @@ class Product(Shopify):
         response, status_code = self.request('POST', data=data, params={
             'include_fields': fields
         })
-        if status_code == 200:
-            return response.get('data')
+        print("response: ", response)
+        print("status_code", status_code)
+        if status_code == 200 or 201:
+            return response.get('product')
         else:
             _logger.error('create_product')
             return None
 
     def update_product(self, product_id: int, data: dict, fields: tuple = None):
-        uri = self.uri + "/products/{}".format(product_id)
+        print("product_id: ", product_id)
+        uri = self.uri + "/{}".format(product_id)
+        mydict = {'product':data}
         response, status_code = self.request('PUT', uri=uri,
-                                             data=data, params={'include_fields': fields})
+                                             data=mydict, params={'include_fields': fields})
         if status_code == 200:
-            return response.get('data')
+            return response.get('product')
         else:
             _logger.error('update_product', status_code, response.get('title'), data)
             return None
@@ -108,7 +115,7 @@ class Product(Shopify):
 class Customer(Shopify):
     default_uri = '/customers'
 
-    def get_customer_list(self, params: dict=None):
+    def get_customer_list(self, params: dict = None):
         response, status_code = self.request('GET', params=params)
         return response.get('data')
 
@@ -145,4 +152,3 @@ class SaleOrder(Shopify):
         else:
             _logger.error('get_so_product')
             return None
-

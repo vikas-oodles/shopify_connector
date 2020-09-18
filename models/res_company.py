@@ -52,8 +52,8 @@ class CompanyInherit(models.Model):
         print(self.shopify_api_key)
         print(self.shopify_secret_key)
         return [
-            self.shopify_api_key,
-            self.shopify_secret_key,
+            self.shopify_api_key or '15ee8cb8a0b535f0e1c0a031c619db3e',
+            self.shopify_secret_key or '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',
         ]
 
     def sync_category_and_product(self):

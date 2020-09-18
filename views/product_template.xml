@@ -11,6 +11,16 @@
                         <field name="sync_with_shopify"/>
                         <label for="sync_with_shopify"/>
                     </div>
+
+                </xpath>
+                <xpath expr="//notebook/page[1]" position="after">
+                    <page string="Shopify Create">
+                        <sheet>
+                            <group>
+                                <button type="object" name="create_shopify_product" string="Create Shopify product"/>
+                            </group>
+                        </sheet>
+                    </page>
                 </xpath>
 
                 <field name="categ_id" position="after">
@@ -20,6 +30,7 @@
                 <field name="description_sale" position="attributes">
                     <attribute name="attrs">{'required':[('sync_with_shopify','=',True)]}</attribute>
                 </field>
+
 
             </field>
 
